@@ -49,7 +49,7 @@ public class FtpRequest extends Thread{
 	public void processRequest(String line) throws IOException{
 		String[] command = line.split("\\s");
 		
-		switch(command[1]){
+		switch(command[0]){
 			case USER:
 				processUser();
 				break;
