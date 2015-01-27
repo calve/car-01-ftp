@@ -34,14 +34,14 @@
   <target name="test" depends="compile-test">
     <junit>
       <formatter type="brief" usefile="false" />
-      <test name="tests.ServeurTest" />
+      <test name="tests.ServerTest" />
       <test name="tests.FtpRequestTest" />
     </junit>
   </target>
 
 
   <target name="run" depends="compile">
-    <java classname="ftpd.Serveur" fork="true">
+    <java classname="ftpd.Server" fork="true">
     </java>
   </target>
 

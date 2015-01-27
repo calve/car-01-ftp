@@ -4,7 +4,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.io.IOException;
 
-public class Serveur{
+public class Server{
     public static final int LISTENING_PORT = 1025; /* Ports under 1024 needs roots permissions to be binded */
 
     public static void main(String[] args) throws IOException{

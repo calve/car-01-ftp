@@ -7,10 +7,10 @@ import org.junit.Test;
 
 import ftpd.*;
 
-public class ServeurTest {
+public class ServerTest {
     @Test
     public void construct() {
-        Serveur serveur = new Serveur();
-        assertNotNull("Serveur is null ?", serveur);
+        Server server = new Server();
+        assertNotNull("Server is null ?", server);
     }
 }
