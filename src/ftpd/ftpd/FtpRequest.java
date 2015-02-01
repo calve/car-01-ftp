@@ -66,6 +66,17 @@ public class FtpRequest extends Thread{
 	
 	public void processPass(){
 		
+	/* Respond a status code and a message to the ftp client
+	 */
+	private void answer(int status, String respond){
+		try{
+			String raw = status+" "+respond+"\n";
+			this.out.writeChars(raw);
+			System.out.println("Send : "+raw);
+		}
+		catch (IOException e){
+			System.out.println("cannot answer to client !");
+		}
 	}
 	
 	
