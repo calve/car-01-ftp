@@ -100,8 +100,8 @@ public class FtpRequest extends Thread{
 	 */
 	private void answer(int status, String respond){
 		try{
-			String raw = status+" "+respond+"\n";
-			this.out.writeChars(raw);
+			String raw = status+" "+respond+"\r\n";
+			this.out.writeBytes(raw);
 			System.out.println(" --> "+raw);
 		}
 		catch (IOException e){
