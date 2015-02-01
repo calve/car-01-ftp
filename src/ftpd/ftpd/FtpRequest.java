@@ -41,6 +41,7 @@ public class FtpRequest extends Thread{
 			String line;
 			
 			while((line = br.readLine()) != null){
+				System.out.println(" <-- "+line);
 				this.processRequest(line);
 			}
 		} catch (IOException e) {
@@ -97,7 +98,7 @@ public class FtpRequest extends Thread{
 		try{
 			String raw = status+" "+respond+"\n";
 			this.out.writeChars(raw);
-			System.out.println("Send : "+raw);
+			System.out.println(" --> "+raw);
 		}
 		catch (IOException e){
 			System.out.println("cannot answer to client !");
