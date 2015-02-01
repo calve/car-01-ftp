@@ -27,6 +27,7 @@ public class FtpRequest extends Thread{
 			OutputStream os = socket.getOutputStream();
 			in = new InputStreamReader(is);
 			out = new DataOutputStream(os);
+			this.answer(220, "ready");
 		}
 		catch(Exception e){
 			//socket.close();

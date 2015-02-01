@@ -14,6 +14,7 @@ public class Server{
         Socket socket = null;
         while(true){
             socket = serverSocket.accept(); /* Wait for an inbound connection */
+            System.out.println("New incoming connection");
             (new FtpRequest(socket)).start();
         }
     }
