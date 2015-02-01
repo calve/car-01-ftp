@@ -6,6 +6,9 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.util.List;
+
+import user.User;
 
 /**
  * 
@@ -21,6 +24,7 @@ public class FtpRequest extends Thread{
 	private InputStreamReader in;
 	private DataOutputStream out;
 	private String username;
+	private List<User> usersList; // Liste des utilisateurs
 
 	public FtpRequest(Socket socket){
 		try{
@@ -33,6 +37,33 @@ public class FtpRequest extends Thread{
 		catch(Exception e){
 			//socket.close();
 		}
+	}
+	
+	/**
+	 * Initialisation de quelques utilisateurs
+	 */
+	public void createUsers(){
+		User anonymous = new User("anonymous", "");
+		User anonymous2 = new User("anonymous", "anonymous");
+		User calve = new User("calve", "123456");
+		User paulette = new User("paulette", "456789");
+		this.usersList.add(anonymous);
+		this.usersList.add(anonymous2);
+		this.usersList.add(calve);
+		this.usersList.add(paulette);
+	}
+	
+	/**
+	 * Retrouver un User par son login
+	 * @param login le login de l'utilisateur recherche
+	 * @return User - le premier utilisateur trouve portant ce login
+	 */
+	public User getUserByLogin(String login){
+		for(User user : this.usersList){
+			if(user.getLogin().equals(login))
+				return user;
+		}
+		return null;
 	}
 	
 	public void run(){
@@ -75,16 +106,20 @@ public class FtpRequest extends Thread{
 		assert command.length >= 2;
 		if (command[1].equals("anonymous")){
 			this.username = command[1];
-			System.out.printf("set user to (%s)\n",this.username);
+			System.out.println("set user to (%s)\n" + this.username);
 			this.answer(331, "Username ok, send password.");
-		}
-		else{
+		}else{
 			this.answer(331, "Invalid username or password.");
-        	}
+        }
 	}
 
 	public void processPass(String[] command){
 		this.answer(230, "User loged in, proceed");
+		if(this.getUserByLogin(this.username).isPassword(command[1])){
+			// Password OK
+		}else{
+			// Password KO
+		}
 	}
 
 	public void processSyst(String[] command){
@@ -100,8 +135,8 @@ public class FtpRequest extends Thread{
 	 */
 	private void answer(int status, String respond){
 		try{
-			String raw = status+" "+respond+"\r\n";
-			this.out.writeBytes(raw);
+			String raw = status+" "+respond+"\n";
+			this.out.writeChars(raw);
 			System.out.println(" --> "+raw);
 		}
 		catch (IOException e){

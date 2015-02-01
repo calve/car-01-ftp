@@ -1,11 +1,7 @@
-package tests;
+package ftpd;
 
 import static org.junit.Assert.*;
-
-import org.junit.Before;
 import org.junit.Test;
-
-import ftpd.*;
 
 public class ServerTest {
     @Test
