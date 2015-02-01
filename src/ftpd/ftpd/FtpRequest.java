@@ -17,6 +17,7 @@ public class FtpRequest extends Thread{
 	static final String USER = "USER";
 	static final String PASS = "PASS";
 	
+	static final String QUIT = "QUIT";
 	private InputStreamReader in;
 	private DataOutputStream out;
 	
@@ -55,6 +56,9 @@ public class FtpRequest extends Thread{
 				break;
 			case PASS:
 				break;
+			case QUIT:
+				processQuit(command);
+				break;
 			default:
 				break;
 		}
@@ -62,10 +66,14 @@ public class FtpRequest extends Thread{
 
 	public void processUser(){
 		
+	public void processPass(String[] command){
 	}
 	
-	public void processPass(){
 		
+	public void processQuit(String[] command){
+		this.answer(221, "Goodbye");
+	}
+
 	/* Respond a status code and a message to the ftp client
 	 */
 	private void answer(int status, String respond){
