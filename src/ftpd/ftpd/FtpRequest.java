@@ -58,6 +58,7 @@ public class FtpRequest extends Thread{
 				processUser(command);
 				break;
 			case PASS:
+				processPass(command);
 				break;
 			case SYST:
 				processSyst(command);
@@ -72,15 +73,18 @@ public class FtpRequest extends Thread{
 
 	public void processUser(String[] command){
 		assert command.length >= 2;
-		this.username = command[1];
-		System.out.printf("set user to (%s)\n",this.username);
-		if (this.username.equals("anonymous")){
+		if (command[1].equals("anonymous")){
+			this.username = command[1];
+			System.out.printf("set user to (%s)\n",this.username);
 			this.answer(331, "Username ok, send password.");
 		}
+		else{
+			this.answer(331, "Invalid username or password.");
+        	}
 	}
 
 	public void processPass(String[] command){
-
+		this.answer(230, "User loged in, proceed");
 	}
 
 	public void processSyst(String[] command){
