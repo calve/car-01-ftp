@@ -20,7 +20,8 @@ public class FtpRequest extends Thread{
 	static final String QUIT = "QUIT";
 	private InputStreamReader in;
 	private DataOutputStream out;
-	
+	private String username;
+
 	public FtpRequest(Socket socket){
 		try{
 			InputStream is = socket.getInputStream();
@@ -53,7 +54,7 @@ public class FtpRequest extends Thread{
 		
 		switch(command[0]){
 			case USER:
-				processUser();
+				processUser(command);
 				break;
 			case PASS:
 				break;
@@ -68,8 +69,15 @@ public class FtpRequest extends Thread{
 		}
 	}
 
-	public void processUser(){
-		
+	public void processUser(String[] command){
+		assert command.length >= 2;
+		this.username = command[1];
+		System.out.printf("set user to (%s)\n",this.username);
+		if (this.username.equals("anonymous")){
+			this.answer(331, "Username ok, send password.");
+		}
+	}
+
 	public void processPass(String[] command){
 
 	}
