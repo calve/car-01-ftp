@@ -85,7 +85,7 @@ public class FtpRequest extends Thread{
 
 	public void processSyst(String[] command){
 		/* This seems to be standard in the ftp-world */
-		this.answer(231, "UNIX type : L8");
+		this.answer(215, "UNIX type : L8");
 	}
 
 	public void processQuit(String[] command){
