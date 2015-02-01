@@ -16,7 +16,7 @@ public class FtpRequest extends Thread{
 	
 	static final String USER = "USER";
 	static final String PASS = "PASS";
-	
+	static final String SYST = "SYST";
 	static final String QUIT = "QUIT";
 	private InputStreamReader in;
 	private DataOutputStream out;
@@ -57,6 +57,9 @@ public class FtpRequest extends Thread{
 				break;
 			case PASS:
 				break;
+			case SYST:
+				processSyst(command);
+				break;
 			case QUIT:
 				processQuit(command);
 				break;
@@ -68,9 +71,14 @@ public class FtpRequest extends Thread{
 	public void processUser(){
 		
 	public void processPass(String[] command){
+
 	}
-	
-		
+
+	public void processSyst(String[] command){
+		/* This seems to be standard in the ftp-world */
+		this.answer(231, "UNIX type : L8");
+	}
+
 	public void processQuit(String[] command){
 		this.answer(221, "Goodbye");
 	}
