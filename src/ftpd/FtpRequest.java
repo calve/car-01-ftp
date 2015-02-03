@@ -22,7 +22,7 @@ public class FtpRequest extends Thread{
 	static final String SYST = "SYST";
 	static final String QUIT = "QUIT";
 	private InputStreamReader in;
-	private DataOutputStream out;
+	private DataOutputStream commandOut;
 	private String username;
 	private List<User> usersList; // Liste des utilisateurs
 
@@ -31,7 +31,7 @@ public class FtpRequest extends Thread{
 			InputStream is = socket.getInputStream();
 			OutputStream os = socket.getOutputStream();
 			in = new InputStreamReader(is);
-			out = new DataOutputStream(os);
+			commandOut = new DataOutputStream(os);
 			this.answer(220, "ready");
 		}
 		catch(Exception e){
@@ -137,7 +137,7 @@ public class FtpRequest extends Thread{
 	private void answer(int status, String respond){
 		try{
 			String raw = status+" "+respond+"\r\n";
-			this.out.writeBytes(raw);
+			this.commandOut.writeBytes(raw);
 			System.out.println(" --> "+raw);
 		}
 		catch (IOException e){
