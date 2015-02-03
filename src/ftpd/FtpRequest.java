@@ -109,7 +109,7 @@ public class FtpRequest extends Thread{
 			System.out.println("set user to (%s)\n" + this.username);
 			this.answer(331, "Username ok, send password.");
 		}else{
-			this.answer(331, "Invalid username or password.");
+			this.answer(530, "Invalid username or password.");
         }
 	}
 
