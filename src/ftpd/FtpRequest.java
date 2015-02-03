@@ -19,6 +19,7 @@ public class FtpRequest extends Thread{
 	static final String LIST = "LIST";
 	static final String PASS = "PASS";
 	static final String PORT = "PORT";
+	static final String PWD = "PWD";
 	static final String QUIT = "QUIT";
 	static final String SYST = "SYST";
 	static final String USER = "USER";
@@ -28,6 +29,7 @@ public class FtpRequest extends Thread{
 	private DataOutputStream dataOut;
 	private String username;
 	private Socket dataSocket;
+	private String pwd;
 
 	public FtpRequest(Socket socket){
 		try{
@@ -36,6 +38,7 @@ public class FtpRequest extends Thread{
 			in = new InputStreamReader(is);
 			commandOut = new DataOutputStream(os);
 			this.answer(220, "ready");
+			this.pwd = "/";
 		}
 		catch(Exception e){
 			//socket.close();
@@ -71,6 +74,9 @@ public class FtpRequest extends Thread{
 				break;
 			case PORT:
 				processPort(command);
+				break;
+			case PWD:
+				processPwd(command);
 				break;
 			case SYST:
 				processSyst(command);
@@ -140,6 +146,11 @@ public class FtpRequest extends Thread{
 		catch (Exception e){
 			this.answer(500, "failed");
 		}
+	}
+
+	public void processPwd(String[] command){
+		String raw = String.format("\"%s\" is the current working directory", this.pwd);
+		this.answer(257, raw);
 	}
 
 	public void processSyst(String[] command){
