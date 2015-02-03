@@ -7,10 +7,7 @@ import java.io.InputStreamReader;
 import java.io.File;
 import java.io.OutputStream;
 import java.net.Socket;
-import java.util.List;
 import java.net.InetAddress;
-
-import user.User;
 
 /**
  * 
@@ -30,7 +27,6 @@ public class FtpRequest extends Thread{
 	private DataOutputStream commandOut;
 	private DataOutputStream dataOut;
 	private String username;
-	private List<User> usersList; // Liste des utilisateurs
 	private Socket dataSocket;
 
 	public FtpRequest(Socket socket){
@@ -46,33 +42,6 @@ public class FtpRequest extends Thread{
 		}
 	}
 	
-	/**
-	 * Initialisation de quelques utilisateurs
-	 */
-	public void createUsers(){
-		User anonymous = new User("anonymous", "");
-		User anonymous2 = new User("anonymous", "anonymous");
-		User calve = new User("calve", "123456");
-		User paulette = new User("paulette", "456789");
-		this.usersList.add(anonymous);
-		this.usersList.add(anonymous2);
-		this.usersList.add(calve);
-		this.usersList.add(paulette);
-	}
-	
-	/**
-	 * Retrouver un User par son login
-	 * @param login le login de l'utilisateur recherche
-	 * @return User - le premier utilisateur trouve portant ce login
-	 */
-	public User getUserByLogin(String login){
-		for(User user : this.usersList){
-			if(user.getLogin().equals(login))
-				return user;
-		}
-		return null;
-	}
-	
 	public void run(){
 		try {
 			BufferedReader br = new BufferedReader(in);
@@ -86,7 +55,6 @@ public class FtpRequest extends Thread{
 			e.printStackTrace();
 		}
 	}
-	
 	
 	public void processRequest(String line) throws IOException{
 		String[] command = line.split("\\s");
@@ -145,7 +113,7 @@ public class FtpRequest extends Thread{
 
 	public void processPass(String[] command){
 		this.answer(230, "User loged in, proceed");
-		if(this.getUserByLogin(this.username).isPassword(command[1])){
+		if(Server.getUserByLogin(this.username).isPassword(command[1])){
 			// Password OK
 		}else{
 			// Password KO
