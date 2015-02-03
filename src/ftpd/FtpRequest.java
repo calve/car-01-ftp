@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.net.InetAddress;
@@ -21,6 +23,7 @@ public class FtpRequest extends Thread{
 	static final String PORT = "PORT";
 	static final String PWD = "PWD";
 	static final String QUIT = "QUIT";
+	static final String RETR = "RETR";
 	static final String SYST = "SYST";
 	static final String USER = "USER";
 
@@ -79,6 +82,9 @@ public class FtpRequest extends Thread{
 				break;
 			case PWD:
 				processPwd(command);
+				break;
+			case RETR:
+				processRetr(command);
 				break;
 			case SYST:
 				processSyst(command);
@@ -155,6 +161,31 @@ public class FtpRequest extends Thread{
 		this.answer(257, raw);
 	}
 
+	public void processRetr(String[] command){
+		if (command.length < 2){
+			this.answer(500, "Syntax error");
+		}
+		String filename = this.basedir+"/"+command[1];
+		try {
+			this.answer(125, "Starting transfer");
+			InputStream in = new FileInputStream(filename);
+			byte[] buffer = new byte[1024];
+			int len = in.read(buffer);
+			while (len != -1) {
+				this.dataOut.write(buffer, 0, len);
+				len = in.read(buffer);
+			}
+			this.dataSocket.close();
+			this.answer(226, "Transfer completed");
+		}
+		catch (FileNotFoundException e){
+			this.answer(550, "File "+filename+" not available");
+		}
+		catch (IOException e){
+			System.out.println("Cannot send "+filename+" file to client !");
+		}
+	}
+	
 	public void processSyst(String[] command){
 		/* This seems to be standard in the ftp-world */
 		this.answer(215, "UNIX type : L8");
