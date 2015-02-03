@@ -26,7 +26,7 @@ public class User {
 	public void setPassword(String password) { this.password = password; }
 	
 	/**
-	 * Vérification du password
+	 * Verification du password
 	 */	
 	public boolean isPassword(String pass){
 		return this.password.equals(pass);
