@@ -35,6 +35,9 @@ public class FtpRequest extends Thread{
 	private String pwd;
 	private String basedir;
 
+	/** Instanciate a FtpRequest binded to a incoming socket
+	 * @param socket : incoming socket
+	 */
 	public FtpRequest(Socket socket){
 		try{
 			InputStream is = socket.getInputStream();
@@ -49,7 +52,9 @@ public class FtpRequest extends Thread{
 			//socket.close();
 		}
 	}
-	
+
+	/** Parse the incoming requests as they arrive
+	 */
 	public void run(){
 		try {
 			BufferedReader br = new BufferedReader(in);
@@ -63,7 +68,13 @@ public class FtpRequest extends Thread{
 			e.printStackTrace();
 		}
 	}
-	
+
+	/**
+	 * Process one request line
+	 * Read the line and execute the appropriate command, if available
+	 * Answer 502 Not implemented if the verb is not available
+	 * @param line : line to be processed
+	 */
 	public void processRequest(String line) throws IOException{
 		String[] command = line.split("\\s");
 		
@@ -98,7 +109,7 @@ public class FtpRequest extends Thread{
 		}
 	}
 
-	public void processList(String[] command){
+	private void processList(String[] command){
 		this.answer(125, "Proceed");
 		String raw = "";
 		// Construct the file list
@@ -114,7 +125,7 @@ public class FtpRequest extends Thread{
 		this.answer(226, "Complete");
 	}
 
-	public void processUser(String[] command){
+	private void processUser(String[] command){
 		assert command.length >= 2;
 		if (Server.usersList.contains(command[1])){
 			this.username = command[1];
@@ -125,7 +136,7 @@ public class FtpRequest extends Thread{
         }
 	}
 
-	public void processPass(String[] command){
+	private void processPass(String[] command){
 		if(Server.getUserByLogin(this.username).isPassword(command[1])){
 			this.answer(230, "User loged in, proceed");
 		}else{
@@ -136,7 +147,7 @@ public class FtpRequest extends Thread{
 
 	/* Handles PORT verbs, which opens a TCP socket from the server to the ip and port specified by the client
 	 */
-	public void processPort(String[] command){
+	private void processPort(String[] command){
 		String[] netAddress = command[1].split(",");
 		if (netAddress.length != 6){
 			this.answer(500, "Syntax error");
@@ -155,12 +166,12 @@ public class FtpRequest extends Thread{
 		}
 	}
 
-	public void processPwd(String[] command){
+	private void processPwd(String[] command){
 		String raw = String.format("\"%s\" is the current working directory", this.pwd);
 		this.answer(257, raw);
 	}
 
-	public void processRetr(String[] command){
+	private void processRetr(String[] command){
 		if (command.length < 2){
 			this.answer(500, "Syntax error");
 		}
@@ -185,19 +196,23 @@ public class FtpRequest extends Thread{
 		}
 	}
 	
-	public void processSyst(String[] command){
+	private void processSyst(String[] command){
 		/* This seems to be standard in the ftp-world */
 		this.answer(215, "UNIX type : L8");
 	}
 
-	public void processQuit(String[] command){
+	private void processQuit(String[] command){
 		this.answer(221, "Goodbye");
 	}
 
-	/* Respond a status code and a message to the ftp client
+	/**
+	 * Respond a status code and a message to the ftp client
 	 * over the command channel
+	 * @param status : three digits status code
+	 * @param respond : free message explaining the answer
+	 * @throws IOException : the client cannot be reached
 	 */
-	private void answer(int status, String respond){
+	public void answer(int status, String respond){
 		try{
 			String raw = status+" "+respond+"\r\n";
 			this.commandOut.writeBytes(raw);
@@ -208,8 +223,9 @@ public class FtpRequest extends Thread{
 		}
 	}
 
-	/*  Send data to the client over the data channel
-	 * @data : a byte array
+	/**
+	 *  Send data to the client over the data channel
+	 * @param data : a byte array
 	 */
 	private void sendData(byte[] data){
 		try{
@@ -223,8 +239,9 @@ public class FtpRequest extends Thread{
 		}
 	}
 
-	/*  Send data to the client over the data channel
-	 * @data : string to be sent, will be converted to a byte array
+	/**
+	 * Send data to the client over the data channel
+	 * @param data : string to be sent, will be converted to a byte array
 	 */
 	private void sendData(String data){
 		this.sendData(data.getBytes());
