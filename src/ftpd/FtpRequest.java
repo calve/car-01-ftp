@@ -30,6 +30,7 @@ public class FtpRequest extends Thread{
 	private String username;
 	private Socket dataSocket;
 	private String pwd;
+	private String basedir;
 
 	public FtpRequest(Socket socket){
 		try{
@@ -39,6 +40,7 @@ public class FtpRequest extends Thread{
 			commandOut = new DataOutputStream(os);
 			this.answer(220, "ready");
 			this.pwd = "/";
+			this.basedir = new File("").getAbsoluteFile().getAbsolutePath();
 		}
 		catch(Exception e){
 			//socket.close();
