@@ -116,9 +116,9 @@ public class FtpRequest extends Thread{
 
 	public void processUser(String[] command){
 		assert command.length >= 2;
-		if (command[1].equals("anonymous")){
+		if (Server.usersList.contains(command[1])){
 			this.username = command[1];
-			System.out.println("set user to (%s)\n" + this.username);
+			System.out.println("set user to " + this.username);
 			this.answer(331, "Username ok, send password.");
 		}else{
 			this.answer(530, "Invalid username or password.");
@@ -126,11 +126,10 @@ public class FtpRequest extends Thread{
 	}
 
 	public void processPass(String[] command){
-		this.answer(230, "User loged in, proceed");
 		if(Server.getUserByLogin(this.username).isPassword(command[1])){
-			// Password OK
+			this.answer(230, "User loged in, proceed");
 		}else{
-			// Password KO
+			this.answer(530, "Invalid password.");
 		}
 	}
 
