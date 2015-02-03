@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.util.List;
+import java.net.InetAddress;
 
 import user.User;
 
@@ -17,14 +18,17 @@ import user.User;
  */
 public class FtpRequest extends Thread{
 	
-	static final String USER = "USER";
 	static final String PASS = "PASS";
-	static final String SYST = "SYST";
+	static final String PORT = "PORT";
 	static final String QUIT = "QUIT";
+	static final String SYST = "SYST";
+	static final String USER = "USER";
+
 	private InputStreamReader in;
 	private DataOutputStream commandOut;
 	private String username;
 	private List<User> usersList; // Liste des utilisateurs
+	private Socket dataSocket;
 
 	public FtpRequest(Socket socket){
 		try{
@@ -91,6 +95,9 @@ public class FtpRequest extends Thread{
 			case PASS:
 				processPass(command);
 				break;
+			case PORT:
+				processPort(command);
+				break;
 			case SYST:
 				processSyst(command);
 				break;
@@ -120,6 +127,26 @@ public class FtpRequest extends Thread{
 			// Password OK
 		}else{
 			// Password KO
+		}
+	}
+
+
+	/* Handles PORT verbs, which opens a TCP socket from the server to the ip and port specified by the client
+	 */
+	public void processPort(String[] command){
+		String[] netAddress = command[1].split(",");
+		if (netAddress.length != 6){
+			this.answer(500, "Syntax error");
+		}
+		int remote_port = (Integer.parseInt(netAddress[4]) << 8) + Integer.parseInt(netAddress[5]);
+		String remote_ip = String.format("%s.%s.%s.%s", netAddress[0], netAddress[1], netAddress[2], netAddress[3]);
+		System.out.println("Opening socket to "+remote_ip+":"+remote_port);
+		try {
+			this.dataSocket = new Socket(InetAddress.getByName(remote_ip), remote_port);
+			this.answer(200, "Active data connection etablished");
+		}
+		catch (Exception e){
+			this.answer(500, "failed");
 		}
 	}
 
