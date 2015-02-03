@@ -98,6 +98,7 @@ public class FtpRequest extends Thread{
 				processQuit(command);
 				break;
 			default:
+				this.answer(502, "Not implemented");
 				break;
 		}
 	}
