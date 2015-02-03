@@ -10,4 +10,17 @@ Un serveur ftp écrit en java
 
 # Connect a client
 
-``telnet localhost 1515``
+``telnet -d localhost 1515``
+
+# Implemented verbs
+
+Sorted alphabetically
+
+   + LIST
+   + PASS
+   + PORT
+   + PWD
+   + QUIT
+   + RETR
+   + SYST
+   + USER
