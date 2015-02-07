@@ -1,6 +1,8 @@
 package ftpd;
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -18,38 +20,44 @@ import java.net.InetAddress;
  */
 public class FtpRequest extends Thread{
 
+	static final String CWD  = "CWD";
 	static final String LIST = "LIST";
 	static final String PASS = "PASS";
 	static final String PORT = "PORT";
-	static final String PWD = "PWD";
+	static final String PWD  = "PWD";
 	static final String QUIT = "QUIT";
 	static final String RETR = "RETR";
+	static final String STOR = "STOR";
 	static final String SYST = "SYST";
 	static final String USER = "USER";
 
 	private InputStreamReader in;
 	private DataOutputStream commandOut;
 	private DataOutputStream dataOut;
-	private String username;
+	private DataInputStream dataIn;
+	private Socket cnxSocket;
 	private Socket dataSocket;
+	private String username;
 	private String pwd;
 	private String basedir;
 
 	/** Instanciate a FtpRequest binded to a incoming socket
 	 * @param socket : incoming socket
+	 * @throws IOException 
 	 */
-	public FtpRequest(Socket socket){
+	public FtpRequest(Socket socket) throws IOException{
 		try{
 			InputStream is = socket.getInputStream();
 			OutputStream os = socket.getOutputStream();
-			in = new InputStreamReader(is);
-			commandOut = new DataOutputStream(os);
+			this.cnxSocket = socket;
+			this.in = new InputStreamReader(is);
+			this.commandOut = new DataOutputStream(os);
 			this.answer(220, "ready");
 			this.pwd = "/";
 			this.basedir = new File("").getAbsoluteFile().getAbsolutePath();
 		}
 		catch(Exception e){
-			//socket.close();
+			this.cnxSocket.close();
 		}
 	}
 
@@ -79,6 +87,9 @@ public class FtpRequest extends Thread{
 		String[] command = line.split("\\s");
 		
 		switch(command[0]){
+			case CWD:
+				processCwd(command);
+				break;
 			case LIST:
 				processList(command);
 				break;
@@ -97,6 +108,9 @@ public class FtpRequest extends Thread{
 			case RETR:
 				processRetr(command);
 				break;
+			case STOR:
+				processStor(command);
+				break;
 			case SYST:
 				processSyst(command);
 				break;
@@ -109,6 +123,39 @@ public class FtpRequest extends Thread{
 		}
 	}
 
+	private void processCwd(String[] command){
+		if (command.length < 2){
+			this.answer(500, "Syntax error");
+		}
+		
+		String pathname = command[1];
+		if(pathname.startsWith("/")){
+			this.pwd = pathname;
+		}
+		else{
+			if(this.pwd.endsWith("/")){
+				this.pwd += pathname;
+			}
+			else{
+				this.pwd = this.pwd + "/" + pathname;
+			}
+		}
+		if(this.pwd.startsWith(this.basedir)){
+			// on verifie que le pathname est OK
+			if(new File(this.pwd).exists()){
+				this.answer(250, "Change directory to "+ this.pwd);
+			}
+			else{
+				this.pwd = this.basedir;
+				this.answer(550, "This directory does not exist.");
+			}
+		}
+		else{ // l utilisateur est sorti du basedir
+			this.pwd = this.basedir;
+			this.answer(550, "Access denied.");
+		}
+	}
+	
 	private void processList(String[] command){
 		this.answer(125, "Proceed");
 		String raw = "";
@@ -143,7 +190,6 @@ public class FtpRequest extends Thread{
 			this.answer(530, "Invalid password.");
 		}
 	}
-
 
 	/* Handles PORT verbs, which opens a TCP socket from the server to the ip and port specified by the client
 	 */
@@ -196,13 +242,39 @@ public class FtpRequest extends Thread{
 		}
 	}
 	
+	private void processStor(String[] command){
+		if (command.length < 2){
+			this.answer(500, "Syntax error");
+		}
+		
+		String filename = command[1];
+		try{
+			int data;
+			FileOutputStream out = new FileOutputStream(filename);
+			
+			while((data = this.dataIn.read()) != 1){
+				out.write(data);
+			}
+			out.close();
+			this.answer(226, "Transfer completed");
+		}
+		catch (FileNotFoundException e){
+			this.answer(550, "File "+filename+" not found");
+		}
+		catch(IOException e) {
+			System.out.println("Cannot send "+filename+" file to client !");
+		}
+		
+	}
+	
 	private void processSyst(String[] command){
 		/* This seems to be standard in the ftp-world */
 		this.answer(215, "UNIX type : L8");
 	}
 
-	private void processQuit(String[] command){
+	private void processQuit(String[] command) throws IOException{
 		this.answer(221, "Goodbye");
+		this.cnxSocket.close();
 	}
 
 	/**
