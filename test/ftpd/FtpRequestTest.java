@@ -18,19 +18,21 @@ import org.junit.runner.RunWith;
 public class FtpRequestTest {
 
 	@Mock private Server svr;
-	@Mock private FtpRequest ftpr;
 	@Mock private Socket socket;
+	private FtpRequest ftpr;
+
 
 	@Test
     public void construct() throws IOException {
-		FtpRequest ftpRequest = new FtpRequest(socket);
-		assertNotNull("ftpRequest is null ?", ftpRequest);
+		ftpr = new FtpRequest(socket);
+		assertNotNull("ftpRequest is null ?", ftpr);
     }
 
     @Test
     @Ignore
     public void testAuthentificationLoginOK() throws IOException{
 		String command = "USER anonymous";
+		ftpr = new FtpRequest(socket);
 
 		ftpr.processRequest(command);
 		Mockito.verify(ftpr).answer(331, "Username ok, send password.");
