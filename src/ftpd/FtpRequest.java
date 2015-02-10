@@ -38,8 +38,8 @@ public class FtpRequest extends Thread{
 	private Socket cnxSocket;
 	private Socket dataSocket;
 	private String username;
-	private String pwd;
-	private String basedir;
+	private String pwd;     /* pwd is the current working directory _relative_ to basedir */
+	private String basedir; /* the directory we started the server in */
 	private String previousCommand = "";
 
 	/** Instanciate a FtpRequest binded to a incoming socket
@@ -152,18 +152,25 @@ public class FtpRequest extends Thread{
 				this.pwd = this.pwd + "/" + pathname;
 			}
 		}
-		if(this.pwd.startsWith(this.basedir)){
+		String target = "";
+		/* Construct a canonical path from the basedir and the directory user asked */
+		try {
+			target = new File(this.basedir + "/" + this.pwd).getCanonicalPath();
+		}
+		catch(IOException e){
+			this.pwd = ".";
+			this.answer(550, "This directory does not exist.");
+		}
+
+		/* Check for path transversal disclosure : we do not allow to go upper than the directory we started the server */
+		if(target.startsWith(this.basedir)){
 			// on verifie que le pathname est OK
-			if(new File(this.pwd).exists()){
-				this.answer(250, "Change directory to "+ this.pwd);
-			}
-			else{
-				this.pwd = this.basedir;
-				this.answer(550, "This directory does not exist.");
+			if(new File(target).exists()){
+				this.answer(250, "Change directory to "+target);
 			}
 		}
 		else{ // l utilisateur est sorti du basedir
-			this.pwd = this.basedir;
+			this.pwd = ".";
 			this.answer(550, "Access denied.");
 		}
 	}
