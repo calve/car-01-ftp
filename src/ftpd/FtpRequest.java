@@ -53,7 +53,7 @@ public class FtpRequest extends Thread{
 			this.in = new InputStreamReader(is);
 			this.commandOut = new DataOutputStream(os);
 			this.answer(220, "ready");
-			this.pwd = "/";
+			this.pwd = ".";
 			this.basedir = new File("").getAbsoluteFile().getAbsolutePath();
 		}
 		catch(Exception e){
@@ -160,12 +160,11 @@ public class FtpRequest extends Thread{
 		this.answer(125, "Proceed");
 		String raw = "";
 		// Construct the file list
-		File dir = new File(".");
-		File[] filesList = dir.listFiles();
-		for (File file : filesList) {
-		    if (file.isFile()) {
-		            raw += file.getName()+"\r\n";
-		        }
+		File dir = new File(this.basedir+"/"+this.pwd);
+		System.out.println("List directory "+dir);
+		String[] filesList = dir.list();
+		for (String file : filesList) {
+			raw += file+"\r\n";
 		}
 		// Okay, send it
 		this.sendData(raw);
