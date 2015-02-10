@@ -87,7 +87,7 @@ public class FtpRequest extends Thread{
 	public void processRequest(String line) throws IOException{
 		String[] command = line.split("\\s");
 		
-		switch(command[0]){
+		switch(command[0].toUpperCase()){
 			case CWD:
 				processCwd(command);
 				this.previousCommand = CWD;
