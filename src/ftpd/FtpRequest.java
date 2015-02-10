@@ -174,7 +174,7 @@ public class FtpRequest extends Thread{
 
 	private void processUser(String[] command){
 		assert command.length >= 2;
-		if (Server.usersList.contains(command[1])){
+		if (Server.containsUserByName(command[1])){
 			this.username = command[1];
 			System.out.println("set user to " + this.username);
 			this.answer(331, "Username ok, send password.");

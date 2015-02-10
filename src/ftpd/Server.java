@@ -52,4 +52,17 @@ public class Server{
 		}
 		return null;
 	}
+
+	/**
+	 * Retourne vrai s'il existe un uilisateur correspond a ce login
+	 * @param name le login a rechercher parmi les utilisateurs
+	 * @return True s'il existe un utilisateur, False sinon
+	 */
+	public static boolean containsUserByName(String name){
+		for(User u: usersList)
+			if(u.getLogin().equals(name))
+				return true;
+		return false;
+	}
+
 }
