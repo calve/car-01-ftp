@@ -259,10 +259,10 @@ public class FtpRequest extends Thread{
 			this.answer(226, "Transfer completed");
 		}
 		catch (FileNotFoundException e){
-			this.answer(550, "File "+filename+" not found");
+			this.answer(550, "File "+filename+" cannot be opened. Maybe it already exists ?");
 		}
 		catch(IOException e) {
-			System.out.println("Cannot send "+filename+" file to client !");
+			System.out.println("Cannot store "+filename+" file to server !");
 		}
 		
 	}
