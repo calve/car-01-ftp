@@ -40,6 +40,7 @@ public class FtpRequest extends Thread{
 	private String username;
 	private String pwd;
 	private String basedir;
+	private String previousCommand = "";
 
 	/** Instanciate a FtpRequest binded to a incoming socket
 	 * @param socket : incoming socket
@@ -89,36 +90,47 @@ public class FtpRequest extends Thread{
 		switch(command[0]){
 			case CWD:
 				processCwd(command);
+				this.previousCommand = CWD;
 				break;
 			case LIST:
 				processList(command);
+				this.previousCommand = LIST;
 				break;
 			case USER:
 				processUser(command);
+				this.previousCommand = USER;
 				break;
 			case PASS:
 				processPass(command);
+				this.previousCommand = PASS;
 				break;
 			case PORT:
 				processPort(command);
+				this.previousCommand = PORT;
 				break;
 			case PWD:
 				processPwd(command);
+				this.previousCommand = PWD;
 				break;
 			case RETR:
 				processRetr(command);
+				this.previousCommand = RETR;
 				break;
 			case STOR:
 				processStor(command);
+				this.previousCommand = STOR;
 				break;
 			case SYST:
 				processSyst(command);
+				this.previousCommand = SYST;
 				break;
 			case QUIT:
 				processQuit(command);
+				this.previousCommand = QUIT;
 				break;
 			default:
 				this.answer(502, "Not implemented");
+				this.previousCommand = "";
 				break;
 		}
 	}
@@ -182,12 +194,15 @@ public class FtpRequest extends Thread{
         }
 	}
 
-	private void processPass(String[] command){
+	private void processPass(String[] command) {
 		assert command.length >= 2;
-		if(Server.getUserByLogin(this.username).isPassword(command[1])){
-			this.answer(230, "User loged in, proceed");
-		}else{
-			this.answer(530, "Invalid password.");
+		if (!this.previousCommand.equals(USER))
+			this.answer(503, "Bad sequence of commands.");
+		else {
+			if (Server.getUserByLogin(this.username).isPassword(command[1]))
+				this.answer(230, "User loged in, proceed");
+			else
+				this.answer(530, "Invalid password.");
 		}
 	}
 
