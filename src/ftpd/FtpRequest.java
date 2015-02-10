@@ -29,6 +29,7 @@ public class FtpRequest extends Thread{
 	static final String RETR = "RETR";
 	static final String STOR = "STOR";
 	static final String SYST = "SYST";
+	static final String TYPE = "TYPE";
 	static final String USER = "USER";
 
 	private InputStreamReader in;
@@ -123,6 +124,10 @@ public class FtpRequest extends Thread{
 			case SYST:
 				processSyst(command);
 				this.previousCommand = SYST;
+				break;
+			case TYPE:
+				processType(command);
+				this.previousCommand = TYPE;
 				break;
 			case QUIT:
 				processQuit(command);
@@ -292,6 +297,15 @@ public class FtpRequest extends Thread{
 	private void processSyst(String[] command){
 		/* This seems to be standard in the ftp-world */
 		this.answer(215, "UNIX type : L8");
+	}
+
+	private void processType(String[] command){
+		assert command.length >= 2;
+		if (command[1].equals("I") || command[1].equals("A")){
+		    this.answer(200, "Type accepted");
+		    return;
+		}
+		this.answer(502, "Type not implemented");
 	}
 
 	private void processQuit(String[] command) throws IOException{
