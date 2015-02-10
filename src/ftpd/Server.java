@@ -31,11 +31,9 @@ public class Server{
 	 */
 	public static void createUsers(){
 		User anonymous = new User("anonymous", "");
-		User anonymous2 = new User("anonymous", "anonymous");
 		User calve = new User("calve", "123456");
 		User paulette = new User("paulette", "456789");
 		usersList.add(anonymous);
-		usersList.add(anonymous2);
 		usersList.add(calve);
 		usersList.add(paulette);
 	}

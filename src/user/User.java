@@ -28,7 +28,10 @@ public class User {
 	/**
 	 * Verification du password
 	 */	
-	public boolean isPassword(String pass){
-		return this.password.equals(pass);
+	public boolean isPassword(String pass) {
+		if (this.login.equals("anonymous"))
+			return true;
+		else
+			return this.password.equals(pass);
 	}
 }

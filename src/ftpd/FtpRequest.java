@@ -184,6 +184,7 @@ public class FtpRequest extends Thread{
 	}
 
 	private void processPass(String[] command){
+		assert command.length >= 2;
 		if(Server.getUserByLogin(this.username).isPassword(command[1])){
 			this.answer(230, "User loged in, proceed");
 		}else{
