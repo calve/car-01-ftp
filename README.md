@@ -1,5 +1,10 @@
 Un serveur ftp écrit en java
 
+  - A. de Busschère
+  - P. Dessingue
+
+17 février 2015
+
 # Compile the server
 
 ``ant``
