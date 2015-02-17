@@ -160,11 +160,12 @@ public class FtpRequest extends Thread{
 		String target = "";
 		/* Construct a canonical path from the basedir and the directory user asked */
 		try {
-			target = new File(this.basedir + "/" + this.pwd).getCanonicalPath();
+			target = new File(this.pwd).getCanonicalPath();
 		}
 		catch(IOException e){
 			this.pwd = ".";
 			this.answer(550, "This directory does not exist.");
+			return;
 		}
 
 		/* Check for path transversal disclosure : we do not allow to go upper than the directory we started the server */
@@ -172,12 +173,15 @@ public class FtpRequest extends Thread{
 			// on verifie que le pathname est OK
 			if(new File(target).exists()){
 				this.answer(250, "Change directory to "+target);
+				return;
 			}
 		}
 		else{ // l utilisateur est sorti du basedir
 			this.pwd = ".";
 			this.answer(550, "Access denied.");
+			return;
 		}
+		this.answer(500, "Uncatched error");
 	}
 	
 	private void processList(String[] command){
