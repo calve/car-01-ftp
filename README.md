@@ -5,6 +5,8 @@ Un serveur ftp écrit en java
 
 17 février 2015
 
+As the name said, it's an ftp serveur
+
 # Compile the server
 
 ``ant``
@@ -55,6 +57,7 @@ Here is an example usage :
 
 Sorted alphabetically
 
+
    + LIST
    + PASS
    + PORT
@@ -63,3 +66,8 @@ Sorted alphabetically
    + RETR
    + SYST
    + USER
+
+
+# UML
+
+Find an UML diagram in ``UML.md``
