@@ -240,7 +240,7 @@ public class FtpRequest extends Thread{
 	}
 
 	private void processPwd(String[] command){
-		String raw = String.format("\"%s\" is the current working directory", this.pwd);
+		String raw = String.format("\"%s\" is the current working directory", this.basedir+"/"+this.pwd);
 		this.answer(257, raw);
 	}
 
