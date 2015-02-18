@@ -11,10 +11,11 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.OutputStream;
 import java.net.Socket;
+import java.net.ServerSocket;
 import java.net.InetAddress;
 
 /**
- * 
+ *
  * @author dessingue
  *
  */
@@ -24,6 +25,7 @@ public class FtpRequest extends Thread{
 	static final String LIST = "LIST";
 	static final String PASS = "PASS";
 	static final String PORT = "PORT";
+	static final String PASV = "PASV";
 	static final String PWD  = "PWD";
 	static final String QUIT = "QUIT";
 	static final String RETR = "RETR";
@@ -31,6 +33,11 @@ public class FtpRequest extends Thread{
 	static final String SYST = "SYST";
 	static final String TYPE = "TYPE";
 	static final String USER = "USER";
+
+	/* Current port to use in passive mode
+	 * Each new client increments it
+	 */
+	static public int current_passive_port = 2048;
 
 	private InputStreamReader in;
 	private DataOutputStream commandOut;
@@ -42,6 +49,9 @@ public class FtpRequest extends Thread{
 	private String pwd;     /* pwd is the current working directory _relative_ to basedir */
 	private String basedir; /* the directory we started the server in */
 	private String previousCommand = "";
+	private boolean passive = false;
+	private int passive_port = 0;
+	private ServerSocket passive_socket;
 
 	/** Instanciate a FtpRequest binded to a incoming socket
 	 * @param socket : incoming socket
@@ -104,6 +114,10 @@ public class FtpRequest extends Thread{
 			case PASS:
 				processPass(command);
 				this.previousCommand = PASS;
+				break;
+			case PASV:
+				processPasv(command);
+				this.previousCommand = PASV;
 				break;
 			case PORT:
 				processPort(command);
@@ -219,6 +233,23 @@ public class FtpRequest extends Thread{
 				this.answer(230, "User loged in, proceed");
 			else
 				this.answer(530, "Invalid password.");
+		}
+	}
+
+	private void processPasv(String[] command) {
+		this.passive_port = current_passive_port++;
+		this.passive = true;
+		System.out.println("going to passive at port "+this.passive_port);
+		try {
+			this.passive_socket = new ServerSocket(this.passive_port);
+			this.answer(227, String.format("Entering Passive Mode (%d,%d,%d,%d,%d,%d)", 127, 0, 0, 1, this.passive_port >> 8, this.passive_port%256));
+			this.dataSocket = this.passive_socket.accept();
+			OutputStream os = this.dataSocket.getOutputStream();
+			this.dataOut = new DataOutputStream(os);
+			System.out.println("Connection etablished");
+		}
+		catch (Exception e){
+			this.answer(500, "Cannot open passive socket, retry");
 		}
 	}
 

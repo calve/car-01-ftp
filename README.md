@@ -57,16 +57,15 @@ Here is an example usage :
 
 Sorted alphabetically
 
-
    + LIST
    + PASS
+   + PASV
    + PORT
    + PWD
    + QUIT
    + RETR
    + SYST
    + USER
-
 
 # UML
 
